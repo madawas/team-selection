@@ -1,0 +1,9 @@
+# Input related configs
+
+# input file path.
+# Override the file path to provide a custom input.
+populationData: resources/input.csv
+excluded: []
+
+# Application related configurations
+mutationRate: 0.001
