@@ -3,7 +3,9 @@
 # input file path.
 # Override the file path to provide a custom input.
 populationData: resources/input.csv
-excluded: []
+excluded:
+  - NAME
+  - INDEX
 
 # Application related configurations
 mutationRate: 0.001

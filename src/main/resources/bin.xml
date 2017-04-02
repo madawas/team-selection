@@ -21,10 +21,29 @@
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/conf</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/samples</directory>
+            <outputDirectory>/</outputDirectory>
+        </fileSet>
     </fileSets>
+
     <files>
         <file>
             <source>LICENSE</source>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>config.yaml</source>
+            <outputDirectory>conf/</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>src/main/resources/sample_input.csv</source>
+            <outputDirectory>samples/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
     </files>
