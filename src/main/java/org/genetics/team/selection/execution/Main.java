@@ -16,5 +16,22 @@
 
 package org.genetics.team.selection.execution;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
+import org.genetics.team.selection.configuration.Configuration;
+import org.genetics.team.selection.configuration.ConfigurationManager;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+
 public class Main {
+
+    public static void main(String[] args) throws IOException {
+        Configuration configuration = ConfigurationManager.getConfiguration("/home/madawa/projects/projectteamselection/config.yaml");
+        System.out.println(configuration.getMutationRate());
+        Reader in = new FileReader("/home/madawa/projects/projectteamselection/src/main/resources/sample_input.csv");
+        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(in);
+        System.out.println(records);
+    }
 }

@@ -22,5 +22,10 @@ public class CommonConstants {
     /**
      * Default configuration path
      */
-    public static final String DEFAULT_CONFIG_PATH = "conf" + File.separator + "config.yml";
+    public static final String DEFAULT_CONFIG_PATH = "conf" + File.separator + "config.yaml";
+
+    /**
+     * Sample input path
+     */
+    public static final String DEFAULT_INPUT_PATH = "samples" + File.separator + "sample_input.csv";
 }
