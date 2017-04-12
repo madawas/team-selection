@@ -2,7 +2,7 @@
 
 # input file path.
 # Override the file path to provide a custom input.
-populationData: resources/input.csv
+populationData: samples/sample_input.csv
 excluded:
   - NAME
   - INDEX

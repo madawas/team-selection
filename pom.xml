@@ -81,7 +81,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>org.genetics.team.selection.execution.Main</mainClass>
+                            <mainClass>org.genetics.team.selection.gui.MainForm</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
