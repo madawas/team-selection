@@ -16,13 +16,16 @@
 
 package org.genetics.team.selection.forms;
 
+import com.intellij.uiDesigner.core.GridConstraints;
 import org.apache.log4j.Logger;
 import org.genetics.team.selection.configuration.Configuration;
 import org.genetics.team.selection.configuration.ConfigurationManager;
-import org.genetics.team.selection.util.CommonConstants;
+import org.genetics.team.selection.util.InputProcessor;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
+import java.util.Map;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -42,22 +45,41 @@ public class TeamSelectionForm {
      */
     private Configuration readAppConfiguration() {
         try {
-            return ConfigurationManager.getConfiguration(CommonConstants.DEFAULT_CONFIG_PATH);
+            return ConfigurationManager.getConfiguration("config.yaml");
         } catch (IOException e) {
             log.error("Error occurred while reading the system configuration ", e);
             System.exit(-1);
         }
         return null;
     }
-
-    public static void main(String[] args) {
-
-
+    private void initComponents(TeamSelectionForm teamSelectionForm, Map<String, Integer> header) {
         JFrame jFrame = new JFrame("Team Selection - v1.0.0");
-        jFrame.setContentPane(new TeamSelectionForm().mainPanel);
-        jFrame.setSize(500, 500);
+        jFrame.setContentPane(teamSelectionForm.mainPanel);
+        jFrame.setSize(800, 800);
         jFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        JPanel configPanel = new JPanel(new GridLayout(header.size(), 2));
+        for (Map.Entry<String, Integer> entry : header.entrySet()) {
+            JTextField label = new JTextField(entry.getKey());
+            JTextField textField = new JTextField();
+            configPanel.add(label);
+            configPanel.add(textField);
+        }
+        this.configurationPanel = new JScrollPane(configPanel);
+        jFrame.add(configurationPanel, new GridConstraints());
+        jFrame.setResizable(false);
         jFrame.pack();
         jFrame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        log.info("Starting App");
+        TeamSelectionForm teamSelectionForm = new TeamSelectionForm();
+        try {
+            Map<String, Integer> header = InputProcessor.readHeader(teamSelectionForm.appConfiguration.getPopulationData(),
+                    teamSelectionForm.appConfiguration.getExcluded());
+            teamSelectionForm.initComponents(teamSelectionForm, header);
+        } catch (IOException e) {
+            log.error("Error occurred when reading the input file. ", e);
+        }
     }
 }

@@ -18,30 +18,42 @@ package org.genetics.team.selection.util;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class InputProcessor {
 
-    public CSVRecord readHeader(String path) throws IOException {
+    /**
+     * Reads header of a CSV file.
+     *
+     * @param path CSV file path
+     * @return header mapping of the csv file
+     * @throws IOException
+     */
+    public static Map<String, Integer> readHeader(String path) throws IOException {
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
         FileReader fileReader = new FileReader(path);
         CSVParser csvFileParser = new CSVParser(fileReader, csvFileFormat);
-        List<CSVRecord> csvRecords = csvFileParser.getRecords();
-        if (csvRecords != null) {
-            return csvRecords.get(0);
-        }
-
-        return null;
+        return  csvFileParser.getHeaderMap();
     }
 
-    public CSVRecord readHeader(String path, List<String> excluded) throws IOException {
-        CSVRecord header = readHeader(path);
-
-        return null;
+    /**
+     * Returns header map of a CSV file excluding given columns.
+     *
+     * @param path CSV file path.
+     * @param excluded excluded column names.
+     * @return header mapping of the csv file
+     * @throws IOException
+     */
+    public static Map<String, Integer> readHeader(String path, List<String> excluded) throws IOException {
+        Map<String, Integer> headerMap = readHeader(path);
+        if(headerMap != null && headerMap.size() > 0) {
+            excluded.forEach(headerMap::remove);
+        }
+        return headerMap;
     }
 
 }
