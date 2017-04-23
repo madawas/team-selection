@@ -31,11 +31,11 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.Map;
 
-public class MainForm {
+public class GUIForm {
     private static Logger log = Logger.getLogger(MainForm.class);
     private Configuration appConfiguration;
 
-    public MainForm() {
+    public GUIForm() {
         this.appConfiguration = readAppConfiguration();
         initComponents();
     }
@@ -87,13 +87,6 @@ public class MainForm {
         frame = new JFrame();
         dialogPane = new JPanel();
         contentPanel = new JPanel();
-        teamConfigPanel = new JPanel();
-        engineersLabel = new JLabel();
-        engineersValue = new JTextField();
-        baLabel = new JLabel();
-        baValue = new JTextField();
-        qaLabel = new JLabel();
-        qaValue = new JTextField();
         attributeConfigPane = new JScrollPane();
         attributeConfigPane.add(attributeConfigPanel);
         textAreaScrollPane = new JScrollPane();
@@ -112,43 +105,18 @@ public class MainForm {
             {
                 dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
 
-                // JFormDesigner evaluation mark
-                dialogPane.setBorder(new javax.swing.border.CompoundBorder(
-                    new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0),
-                        "JFormDesigner Evaluation", javax.swing.border.TitledBorder.CENTER,
-                        javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12),
-                        java.awt.Color.red), dialogPane.getBorder())); dialogPane.addPropertyChangeListener(new java.beans.PropertyChangeListener(){public void propertyChange(java.beans.PropertyChangeEvent e){if("border".equals(e.getPropertyName()))throw new RuntimeException();}});
+//                // JFormDesigner evaluation mark
+//                dialogPane.setBorder(new javax.swing.border.CompoundBorder(
+//                        new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0),
+//                                "JFormDesigner Evaluation", javax.swing.border.TitledBorder.CENTER,
+//                                javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12),
+//                                java.awt.Color.red), dialogPane.getBorder())); dialogPane.addPropertyChangeListener(new java.beans.PropertyChangeListener(){public void propertyChange(java.beans.PropertyChangeEvent e){if("border".equals(e.getPropertyName()))throw new RuntimeException();}});
 
                 dialogPane.setLayout(new BorderLayout());
 
                 //======== contentPanel ========
                 {
-                    contentPanel.setLayout(new GridLayoutManager(4, 1, new Insets(0, 0, 0, 0), -1, -1));
-
-                    //======== teamConfigPanel ========
-                    {
-                        teamConfigPanel.setLayout(new GridLayout(1, 6));
-
-                        //---- engineersLabel ----
-                        engineersLabel.setText("Engineers");
-                        teamConfigPanel.add(engineersLabel);
-                        teamConfigPanel.add(engineersValue);
-
-                        //---- baLabel ----
-                        baLabel.setText("Business Analysts");
-                        teamConfigPanel.add(baLabel);
-                        teamConfigPanel.add(baValue);
-
-                        //---- qaLabel ----
-                        qaLabel.setText("QA Engineers");
-                        teamConfigPanel.add(qaLabel);
-                        teamConfigPanel.add(qaValue);
-                    }
-                    contentPanel.add(teamConfigPanel, new GridConstraints(0, 0, 1, 1,
-                        GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        null, null, null));
+                    contentPanel.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
 
                     //======== attributeConfigPane ========
                     {
@@ -161,10 +129,10 @@ public class MainForm {
                         attributeConfigPane.setViewportView(attributeConfigPanel);
                     }
                     contentPanel.add(attributeConfigPane, new GridConstraints(1, 0, 1, 1,
-                        GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
-                        null, null, null));
+                            GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+                            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                            GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                            null, null, null));
 
                     //======== textAreaScrollPane ========
                     {
@@ -175,10 +143,10 @@ public class MainForm {
                         textAreaScrollPane.setViewportView(console);
                     }
                     contentPanel.add(textAreaScrollPane, new GridConstraints(2, 0, 1, 1,
-                        GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
-                        GridConstraints.SIZEPOLICY_FIXED,
-                        GridConstraints.SIZEPOLICY_CAN_GROW,
-                        new Dimension(300, 300), new Dimension(300, 300), null, 0, true));
+                            GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
+                            GridConstraints.SIZEPOLICY_FIXED,
+                            GridConstraints.SIZEPOLICY_CAN_GROW,
+                            null, null, null, 0, true));
                 }
                 dialogPane.add(contentPanel, BorderLayout.CENTER);
 
@@ -193,8 +161,8 @@ public class MainForm {
                     runButton.setText("Run");
                     runButton.addActionListener(e -> runButtonActionPerformed(e));
                     buttonBar.add(runButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                        new Insets(0, 0, 0, 0), 0, 0));
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 0, 0), 0, 0));
                 }
                 dialogPane.add(buttonBar, BorderLayout.SOUTH);
             }
@@ -206,7 +174,7 @@ public class MainForm {
     }
 
     public static void main(String[] args) {
-        MainForm mainForm = new MainForm();
+        GUIForm mainForm = new GUIForm();
         mainForm.frame.setVisible(true);
     }
 
@@ -215,13 +183,6 @@ public class MainForm {
     private JFrame frame;
     private JPanel dialogPane;
     private JPanel contentPanel;
-    private JPanel teamConfigPanel;
-    private JLabel engineersLabel;
-    private JTextField engineersValue;
-    private JLabel baLabel;
-    private JTextField baValue;
-    private JLabel qaLabel;
-    private JTextField qaValue;
     private JScrollPane attributeConfigPane;
     private JPanel attributeConfigPanel;
     private JScrollPane textAreaScrollPane;

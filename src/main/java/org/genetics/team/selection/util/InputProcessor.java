@@ -18,9 +18,12 @@ package org.genetics.team.selection.util;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.genetics.team.selection.beans.Employee;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +57,25 @@ public class InputProcessor {
             excluded.forEach(headerMap::remove);
         }
         return headerMap;
+    }
+
+    /**
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
+    public static List<Employee> readPopulation(String path) throws IOException {
+        List<Employee> employeeList = new ArrayList<>();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
+        FileReader fileReader = new FileReader(path);
+        CSVParser csvFileParser = new CSVParser(fileReader, csvFormat);
+
+        List<CSVRecord> csvRecords = csvFileParser.getRecords();
+        for(CSVRecord csvRecord: csvRecords) {
+
+        }
+        return employeeList;
     }
 
 }

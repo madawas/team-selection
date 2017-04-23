@@ -21,6 +21,6 @@ package org.genetics.team.selection.beans;
  */
 public enum EmployeeType {
     ENGINEER,
-    PROJECT_MANAGER,
+    BUSINESS_ANALYST,
     QA_ENGINEER
 }

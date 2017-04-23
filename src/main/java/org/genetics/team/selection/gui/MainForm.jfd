@@ -12,9 +12,37 @@ new FormModel {
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.intellij.uiDesigner.core.GridLayoutManager ) {
 					"$columnCount": 1
-					"$rowCount": 3
+					"$rowCount": 4
 				} ) {
 					name: "contentPanel"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+						"columns": 6
+					} ) {
+						name: "teamConfigPanel"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "engineersLabel"
+							"text": "Engineers"
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "engineersValue"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "baLabel"
+							"text": "Business Analysts"
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "baValue"
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "qaLabel"
+							"text": "QA Engineers"
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "qaValue"
+						} )
+					}, new FormLayoutConstraints( class com.intellij.uiDesigner.core.GridConstraints ) {
+						"fill": 3
+					} )
 					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 						name: "attributeConfigPane"
 						"verticalScrollBarPolicy": 21
@@ -45,6 +73,8 @@ new FormModel {
 						"indent": 0
 						"hSizePolicy": 0
 						"vSizePolicy": 2
+						"preferredSize": new java.awt.Dimension( 300, 300 )
+						"minimumSize": new java.awt.Dimension( 300, 300 )
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"

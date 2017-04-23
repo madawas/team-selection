@@ -18,6 +18,7 @@ package org.genetics.team.selection.beans;
 
 public class Employee {
     private int id;
+    private String name;
     private byte[] gene;
     private EmployeeType type;
 
@@ -48,5 +49,13 @@ public class Employee {
 
     public void setGene(byte[] gene) {
         this.gene = gene;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

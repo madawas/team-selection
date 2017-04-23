@@ -17,6 +17,7 @@
 package org.genetics.team.selection.configuration;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class holds the configuration
@@ -24,8 +25,11 @@ import java.util.List;
 public final class Configuration {
 
     private String populationData;
+    private Map<String, String> headerMapping;
     private List<String> excluded;
     private Double mutationRate;
+    private Integer generations;
+    private Integer initialPopulationSize;
 
     public String getPopulationData() {
         return populationData;
@@ -49,5 +53,29 @@ public final class Configuration {
 
     public void setMutationRate(Double mutationRate) {
         this.mutationRate = mutationRate;
+    }
+
+    public Map<String, String> getHeaderMapping() {
+        return headerMapping;
+    }
+
+    public void setHeaderMapping(Map<String, String> headerMapping) {
+        this.headerMapping = headerMapping;
+    }
+
+    public Integer getGenerations() {
+        return generations;
+    }
+
+    public void setGenerations(Integer generations) {
+        this.generations = generations;
+    }
+
+    public Integer getInitialPopulationSize() {
+        return initialPopulationSize;
+    }
+
+    public void setInitialPopulationSize(Integer initialPopulationSize) {
+        this.initialPopulationSize = initialPopulationSize;
     }
 }
