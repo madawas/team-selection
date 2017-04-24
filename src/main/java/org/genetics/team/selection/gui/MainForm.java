@@ -34,9 +34,11 @@ import java.util.Map;
 public class MainForm {
     private static Logger log = Logger.getLogger(MainForm.class);
     private Configuration appConfiguration;
+    private InputProcessor inputProcessor;
 
     public MainForm() {
         this.appConfiguration = readAppConfiguration();
+        this.inputProcessor = generateInputProcessor();
         initComponents();
     }
 
@@ -55,6 +57,23 @@ public class MainForm {
         return null;
     }
 
+    private InputProcessor generateInputProcessor() {
+        if(this.appConfiguration == null) {
+            throw new IllegalStateException("Application Configuration is empty. Unable to process");
+        }
+        Map<String, String> headerMap = this.appConfiguration.getHeaderMapping();
+        int attributeCount = this.appConfiguration.getAttributeCount();
+        String[] inputHeaders = new String[headerMap.size()];
+        inputHeaders[0] = headerMap.get("id");
+        inputHeaders[1] = headerMap.get("name");
+        inputHeaders[2] = headerMap.get("type");
+
+        for(int i = 3; i < 3 + attributeCount; ++i) {
+            inputHeaders[i] = headerMap.get("attribute" + i);
+        }
+        return InputProcessor.getInputProcessor(inputHeaders);
+    }
+
     private void runButtonActionPerformed(ActionEvent e) {
         System.out.println("Hello");
     }
@@ -64,19 +83,19 @@ public class MainForm {
     }
 
     private void createConfigPanel() {
-        try {
-            Map<String, Integer> header = InputProcessor
-                    .readHeader(this.appConfiguration.getPopulationData(), this.appConfiguration.getExcluded());
-            attributeConfigPanel = new JPanel(new GridLayout(2, header.size(), 10, 5));
-            for (Map.Entry<String, Integer> entry : header.entrySet()) {
-                JLabel label = new JLabel(entry.getKey());
-                JTextField textField = new JTextField();
-                attributeConfigPanel.add(label);
-                attributeConfigPanel.add(textField);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Map<String, Integer> header = InputProcessor
+//                    .readHeader(this.appConfiguration.getPopulationData(), this.appConfiguration.getExcluded());
+//            attributeConfigPanel = new JPanel(new GridLayout(2, header.size(), 10, 5));
+//            for (Map.Entry<String, Integer> entry : header.entrySet()) {
+//                JLabel label = new JLabel(entry.getKey());
+//                JTextField textField = new JTextField();
+//                attributeConfigPanel.add(label);
+//                attributeConfigPanel.add(textField);
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void initComponents() {
@@ -206,6 +225,7 @@ public class MainForm {
     }
 
     public static void main(String[] args) {
+
         MainForm mainForm = new MainForm();
         mainForm.frame.setVisible(true);
     }

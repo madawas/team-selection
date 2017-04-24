@@ -28,7 +28,19 @@ import java.util.List;
 import java.util.Map;
 
 public class InputProcessor {
+    private static InputProcessor inputProcessor;
+    private final String[] INPUT_HEADERS;
 
+    private InputProcessor(String[] inputHeaders) {
+        this.INPUT_HEADERS = inputHeaders;
+    }
+
+    public static InputProcessor getInputProcessor(String[] inputHeaders) {
+        if(inputProcessor == null) {
+            return new InputProcessor(inputHeaders);
+        }
+        return inputProcessor;
+    }
     /**
      * Reads header of a CSV file.
      *
@@ -36,8 +48,8 @@ public class InputProcessor {
      * @return header mapping of the csv file
      * @throws IOException
      */
-    public static Map<String, Integer> readHeader(String path) throws IOException {
-        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
+    public Map<String, Integer> readHeader(String path) throws IOException {
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withHeader(INPUT_HEADERS);
         FileReader fileReader = new FileReader(path);
         CSVParser csvFileParser = new CSVParser(fileReader, csvFileFormat);
         return  csvFileParser.getHeaderMap();
@@ -51,7 +63,7 @@ public class InputProcessor {
      * @return header mapping of the csv file
      * @throws IOException
      */
-    public static Map<String, Integer> readHeader(String path, List<String> excluded) throws IOException {
+    public Map<String, Integer> readHeader(String path, List<String> excluded) throws IOException {
         Map<String, Integer> headerMap = readHeader(path);
         if(headerMap != null && headerMap.size() > 0) {
             excluded.forEach(headerMap::remove);
@@ -65,9 +77,9 @@ public class InputProcessor {
      * @return
      * @throws IOException
      */
-    public static List<Employee> readPopulation(String path) throws IOException {
+    public List<Employee> readPopulation(String path) throws IOException {
         List<Employee> employeeList = new ArrayList<>();
-        CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(INPUT_HEADERS);
         FileReader fileReader = new FileReader(path);
         CSVParser csvFileParser = new CSVParser(fileReader, csvFormat);
 

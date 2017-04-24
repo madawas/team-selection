@@ -20,19 +20,19 @@ public class Employee {
     private int id;
     private String name;
     private byte[] gene;
-    private EmployeeType type;
+    private String employeeType;
 
-    public Employee(int id, EmployeeType type) {
+    public Employee(int id, String employeeType) {
         this.id = id;
-        this.type = type;
+        this.employeeType = employeeType;
     }
 
-    public EmployeeType getType() {
-        return type;
+    public String getEmployeeType() {
+        return employeeType;
     }
 
-    public void setType(EmployeeType type) {
-        this.type = type;
+    public void setEmployeeType(String employeeType) {
+        this.employeeType = employeeType;
     }
 
     public int getId() {

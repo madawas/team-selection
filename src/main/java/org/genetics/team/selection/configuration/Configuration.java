@@ -25,6 +25,8 @@ import java.util.Map;
 public final class Configuration {
 
     private String populationData;
+    private String[] employeeTypes;
+    private Integer attributeCount;
     private Map<String, String> headerMapping;
     private List<String> excluded;
     private Double mutationRate;
@@ -77,5 +79,21 @@ public final class Configuration {
 
     public void setInitialPopulationSize(Integer initialPopulationSize) {
         this.initialPopulationSize = initialPopulationSize;
+    }
+
+    public Integer getAttributeCount() {
+        return attributeCount;
+    }
+
+    public void setAttributeCount(Integer attributeCount) {
+        this.attributeCount = attributeCount;
+    }
+
+    public String[] getEmployeeTypes() {
+        return employeeTypes;
+    }
+
+    public void setEmployeeTypes(String[] employeeTypes) {
+        this.employeeTypes = employeeTypes;
     }
 }

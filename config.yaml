@@ -3,12 +3,13 @@
 # input file path.
 # Override the file path to provide a custom input.
 populationData: samples/sample_input.csv
-
+employeeTypes: [ENGINEER, QA, BA]
+attributeCount: 3
 # CSV header mapping of the input file.
 headerMapping:
   id: INDEX
   name: NAME
-  type: TYPE
+  employeeType: TYPE
   attribute1: EXPERIENCE
   attribute2: PERFORMANCE
   attribute3: PROFESSIONAL_QUALIFICATIONS
