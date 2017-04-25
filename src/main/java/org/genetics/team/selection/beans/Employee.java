@@ -22,9 +22,10 @@ public class Employee {
     private byte[] gene;
     private String employeeType;
 
-    public Employee(int id, String employeeType) {
+    public Employee(int id, String employeeType, String name) {
         this.id = id;
         this.employeeType = employeeType;
+        this.name = name;
     }
 
     public String getEmployeeType() {

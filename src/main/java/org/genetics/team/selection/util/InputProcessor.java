@@ -24,70 +24,86 @@ import org.genetics.team.selection.beans.Employee;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class InputProcessor {
     private static InputProcessor inputProcessor;
-    private final String[] INPUT_HEADERS;
+    private final String[] INPUT_HEADER;
+    private final Map<String, String> HEADER_MAPPING;
+    private final int attributeCount;
 
-    private InputProcessor(String[] inputHeaders) {
-        this.INPUT_HEADERS = inputHeaders;
+    private InputProcessor(String[] inputHeaders, Map<String, String> HEADER_MAPPING, int attributeCount) {
+        this.INPUT_HEADER = inputHeaders;
+        this.HEADER_MAPPING = HEADER_MAPPING;
+        this.attributeCount = attributeCount;
     }
 
-    public static InputProcessor getInputProcessor(String[] inputHeaders) {
+    public static InputProcessor getInputProcessor(int attributeCount, Map<String, String> headerMap) {
         if(inputProcessor == null) {
-            return new InputProcessor(inputHeaders);
+            String[] inputHeaders = new String[headerMap.size()];
+            inputHeaders[0] = headerMap.get(CommonConstants.HEADER_ID);
+            inputHeaders[1] = headerMap.get(CommonConstants.HEADER_NAME);
+            inputHeaders[2] = headerMap.get(CommonConstants.HEADER_TYPE);
+
+            for(int i = 1; i < 1 + attributeCount; ++i) {
+                inputHeaders[i+2] = headerMap.get("attribute" + i);
+            }
+            inputProcessor = new InputProcessor(inputHeaders, headerMap, attributeCount);
         }
         return inputProcessor;
     }
+
     /**
-     * Reads header of a CSV file.
+     * Returns the header of the input file as a list of Strings
      *
-     * @param path CSV file path
-     * @return header mapping of the csv file
-     * @throws IOException
+     * @return header of the input file
      */
-    public Map<String, Integer> readHeader(String path) throws IOException {
-        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withHeader(INPUT_HEADERS);
-        FileReader fileReader = new FileReader(path);
-        CSVParser csvFileParser = new CSVParser(fileReader, csvFileFormat);
-        return  csvFileParser.getHeaderMap();
+    public List<String> getHeader() {
+        return new ArrayList<>(Arrays.asList(this.INPUT_HEADER));
     }
 
     /**
-     * Returns header map of a CSV file excluding given columns.
+     * Removes given column headers and returns the header of the input file as a list of Strings
      *
-     * @param path CSV file path.
-     * @param excluded excluded column names.
-     * @return header mapping of the csv file
-     * @throws IOException
+     * @return header of the input file
      */
-    public Map<String, Integer> readHeader(String path, List<String> excluded) throws IOException {
-        Map<String, Integer> headerMap = readHeader(path);
-        if(headerMap != null && headerMap.size() > 0) {
-            excluded.forEach(headerMap::remove);
+    public List<String> getHeader(List<String> excluded) {
+        List<String> header = new ArrayList<>(Arrays.asList(this.INPUT_HEADER));
+        if(header.size() > 0) {
+            excluded.forEach(header::remove);
         }
-        return headerMap;
+        return header;
     }
 
     /**
      *
-     * @param path
-     * @return
+     * @param path path of the input CSV file
+     * @return list of {@link Employee}
      * @throws IOException
      */
     public List<Employee> readPopulation(String path) throws IOException {
         List<Employee> employeeList = new ArrayList<>();
-        CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(INPUT_HEADERS);
+        CSVFormat csvFormat = CSVFormat.DEFAULT.withHeader(INPUT_HEADER);
         FileReader fileReader = new FileReader(path);
         CSVParser csvFileParser = new CSVParser(fileReader, csvFormat);
 
         List<CSVRecord> csvRecords = csvFileParser.getRecords();
         for(CSVRecord csvRecord: csvRecords) {
+            int id = Integer.parseInt(csvRecord.get(HEADER_MAPPING.get(CommonConstants.HEADER_ID)));
+            String type = csvRecord.get(HEADER_MAPPING.get(CommonConstants.HEADER_TYPE));
+            String name = csvRecord.get(HEADER_MAPPING.get(CommonConstants.HEADER_NAME));
 
+            Employee employee = new Employee(id, type, name);
+            employee.setGene(generateEmployeeGene());
         }
         return employeeList;
+    }
+
+    private byte[] generateEmployeeGene() {
+        //TODO: implement gene generation
+        return null;
     }
 
 }

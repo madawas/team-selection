@@ -28,4 +28,8 @@ public class CommonConstants {
      * Sample input path
      */
     public static final String DEFAULT_INPUT_PATH = "samples" + File.separator + "sample_input.csv";
+
+    public static final String HEADER_ID = "id";
+    public static final String HEADER_TYPE = "type";
+    public static final String HEADER_NAME = "name";
 }

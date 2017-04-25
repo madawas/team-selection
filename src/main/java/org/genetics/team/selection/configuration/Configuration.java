@@ -28,6 +28,7 @@ public final class Configuration {
     private String[] employeeTypes;
     private Integer attributeCount;
     private Map<String, String> headerMapping;
+    private Map<String, List<Integer>> attributeRanges;
     private List<String> excluded;
     private Double mutationRate;
     private Integer generations;
@@ -95,5 +96,13 @@ public final class Configuration {
 
     public void setEmployeeTypes(String[] employeeTypes) {
         this.employeeTypes = employeeTypes;
+    }
+
+    public Map<String, List<Integer>> getAttributeRanges() {
+        return attributeRanges;
+    }
+
+    public void setAttributeRanges(Map<String, List<Integer>> attributeRanges) {
+        this.attributeRanges = attributeRanges;
     }
 }
