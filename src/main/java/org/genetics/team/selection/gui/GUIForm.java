@@ -21,6 +21,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.apache.log4j.Logger;
 import org.genetics.team.selection.configuration.Configuration;
 import org.genetics.team.selection.configuration.ConfigurationManager;
+import org.genetics.team.selection.util.CommonConstants;
 import org.genetics.team.selection.util.InputProcessor;
 
 import javax.swing.*;
@@ -82,9 +83,9 @@ public class GUIForm {
         if (excluded == null) {
             excluded = new ArrayList<>();
         }
-//        excluded.add(headerMapping.get(CommonConstants.HEADER_ID));
-//        excluded.add(headerMapping.get(CommonConstants.HEADER_NAME));
-//        excluded.add(headerMapping.get(CommonConstants.HEADER_TYPE));
+        excluded.add(headerMapping.get(CommonConstants.HEADER_ID));
+        excluded.add(headerMapping.get(CommonConstants.HEADER_NAME));
+        excluded.add(headerMapping.get(CommonConstants.HEADER_TYPE));
 
         List<String> header = this.inputProcessor.getHeader(excluded);
         int cols = header.size() > 5 ? 5 : header.size();
