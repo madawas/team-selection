@@ -16,6 +16,7 @@
 
 package org.genetics.team.selection.configuration;
 
+import org.genetics.team.selection.util.CommonConstants;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
@@ -31,6 +32,10 @@ public class ConfigurationManager {
         Yaml yaml = new Yaml();
         try (InputStream in = Files.newInputStream(Paths.get(configPath))) {
             configuration = yaml.loadAs(in, Configuration.class);
+        }
+
+        if(configuration.getPopulationData() == null) {
+            configuration.setPopulationData(CommonConstants.DEFAULT_INPUT_PATH);
         }
     }
 

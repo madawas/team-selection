@@ -19,6 +19,7 @@ package org.genetics.team.selection.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.apache.log4j.Logger;
+import org.genetics.team.selection.beans.Employee;
 import org.genetics.team.selection.configuration.Configuration;
 import org.genetics.team.selection.configuration.ConfigurationManager;
 import org.genetics.team.selection.util.CommonConstants;
@@ -31,6 +32,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +40,20 @@ public class GUIForm {
     private static Logger log = Logger.getLogger(GUIForm.class);
     private Configuration appConfiguration;
     private InputProcessor inputProcessor;
+    private Map<String, JTextField> teamConfigComponentMap;
+    private Map<String, JTextField> attributeConfigComponentMap;
+
+    private JFrame frame;
+    private JPanel dialogPane;
+    private JPanel contentPanel;
+    private JPanel teamConfigPanel;
+    private JScrollPane attributeConfigPane;
+    private JPanel attributeConfigPanel;
+    private JPanel consolePanel;
+    private JScrollPane textAreaScrollPane;
+    private JTextArea console;
+    private JPanel buttonBar;
+    private JButton runButton;
 
     public GUIForm() {
         this.appConfiguration = readAppConfiguration();
@@ -70,15 +86,66 @@ public class GUIForm {
     }
 
     private void runButtonActionPerformed(ActionEvent e) {
-        System.out.println("Hello");
+        if (teamConfigComponentMap != null) {
+            Map<String, Integer> teamDefinition = new HashMap<>();
+            for (Object o : teamConfigComponentMap.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                teamDefinition
+                        .put((String) entry.getKey(), Integer.parseInt(((JTextField) entry.getValue()).getText()));
+            }
+            this.inputProcessor.setTeamDefinition(teamDefinition);
+        }
+
+        if (attributeConfigComponentMap != null) {
+            Map<String, Double> attributeWeights = new HashMap<>();
+            for (Object o : attributeConfigComponentMap.entrySet()) {
+                Map.Entry entry = (Map.Entry) o;
+                attributeWeights
+                        .put((String) entry.getKey(), Double.parseDouble(((JTextField) entry.getValue()).getText()));
+            }
+            this.inputProcessor.setAttributeWeights(attributeWeights);
+        }
+
+        try {
+            List<Employee> list = this.inputProcessor.readPopulation(this.appConfiguration.getPopulationData());
+        } catch (IOException e1) {
+            log.error("Error occurred when reading the input file.", e1);
+        }
+
     }
 
     private void createUIComponents() {
         createConfigPanel();
+        createTeamPanel();
+    }
+
+    private void createTeamPanel() {
+        String[] types = this.appConfiguration.getTypes();
+        if (types == null) {
+            throw new IllegalArgumentException(
+                    "Types is a required configuration. Unable tp proceed with type being empty.");
+        }
+        teamConfigComponentMap = new HashMap<>();
+        int cols = types.length > 5 ? 10 : types.length * 2;
+        int rows = types.length > 5 ? (int) Math.ceil((double) types.length / 5) : 1;
+        teamConfigPanel = new JPanel(new GridLayout(rows, cols, 10, 5));
+        for(String type: types) {
+            JLabel label = new JLabel(type + ":");
+            label.setBorder(new EmptyBorder(0, 10, 0, 5));
+            label.setHorizontalAlignment(SwingConstants.RIGHT);
+            JTextField textField = new JTextField();
+            teamConfigComponentMap.put(type, textField);
+            teamConfigPanel.add(label);
+            teamConfigPanel.add(textField);
+        }
     }
 
     private void createConfigPanel() {
         Map<String, String> headerMapping = this.appConfiguration.getHeaderMapping();
+        if (headerMapping == null) {
+            throw new IllegalArgumentException(
+                    "HeaderMapping is a required configuration. Unable tp proceed with header mapping being empty.");
+        }
         List<String> excluded = this.appConfiguration.getExcluded();
         if (excluded == null) {
             excluded = new ArrayList<>();
@@ -88,12 +155,16 @@ public class GUIForm {
         excluded.add(headerMapping.get(CommonConstants.HEADER_TYPE));
 
         List<String> header = this.inputProcessor.getHeader(excluded);
-        int cols = header.size() > 5 ? 5 : header.size();
+        int cols = header.size() > 5 ? 10 : header.size() * 2;
         int rows = header.size() > 5 ? (int) Math.ceil((double) header.size() / 5) : 1;
         attributeConfigPanel = new JPanel(new GridLayout(rows, cols, 10, 5));
+        attributeConfigComponentMap = new HashMap<>();
         for (String entry : header) {
-            JLabel label = new JLabel(entry + ":");
+            JLabel label = new JLabel(entry + ": ");
+            label.setBorder(new EmptyBorder(0, 10, 0, 5));
             JTextField textField = new JTextField();
+            attributeConfigComponentMap.put(entry, textField);
+            label.setHorizontalAlignment(SwingConstants.RIGHT);
             attributeConfigPanel.add(label);
             attributeConfigPanel.add(textField);
         }
@@ -105,7 +176,6 @@ public class GUIForm {
         frame = new JFrame("Team Selection - v1.0.0");
         dialogPane = new JPanel();
         contentPanel = new JPanel();
-        teamConfigPanel = new JPanel();
         attributeConfigPane = new JScrollPane();
         attributeConfigPane.add(attributeConfigPanel);
         consolePanel = new JPanel();
@@ -133,7 +203,7 @@ public class GUIForm {
                     //======== teamConfigPanel ========
                     {
                         teamConfigPanel.setBorder(new TitledBorder("Define Team Combination"));
-                        teamConfigPanel.setLayout(new GridLayout());
+//                        teamConfigPanel.setLayout(new GridLayout());
                     }
                     contentPanel.add(teamConfigPanel,
                             new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
@@ -213,16 +283,4 @@ public class GUIForm {
         GUIForm mainForm = new GUIForm();
         mainForm.frame.setVisible(true);
     }
-
-    private JFrame frame;
-    private JPanel dialogPane;
-    private JPanel contentPanel;
-    private JPanel teamConfigPanel;
-    private JScrollPane attributeConfigPane;
-    private JPanel attributeConfigPanel;
-    private JPanel consolePanel;
-    private JScrollPane textAreaScrollPane;
-    private JTextArea console;
-    private JPanel buttonBar;
-    private JButton runButton;
 }

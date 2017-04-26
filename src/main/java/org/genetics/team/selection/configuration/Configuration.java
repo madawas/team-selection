@@ -25,7 +25,7 @@ import java.util.Map;
 public final class Configuration {
 
     private String populationData;
-    private String[] employeeTypes;
+    private String[] types;
     private Integer attributeCount;
     private Map<String, String> headerMapping;
     private Map<String, List<Integer>> attributeRanges;
@@ -90,12 +90,12 @@ public final class Configuration {
         this.attributeCount = attributeCount;
     }
 
-    public String[] getEmployeeTypes() {
-        return employeeTypes;
+    public String[] getTypes() {
+        return types;
     }
 
-    public void setEmployeeTypes(String[] employeeTypes) {
-        this.employeeTypes = employeeTypes;
+    public void setTypes(String[] types) {
+        this.types = types;
     }
 
     public Map<String, List<Integer>> getAttributeRanges() {

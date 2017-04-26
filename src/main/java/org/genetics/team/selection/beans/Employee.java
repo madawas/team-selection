@@ -21,6 +21,7 @@ public class Employee {
     private String name;
     private byte[] gene;
     private String employeeType;
+    private double fitnessValue;
 
     public Employee(int id, String employeeType, String name) {
         this.id = id;
@@ -58,5 +59,13 @@ public class Employee {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public double getFitnessValue() {
+        return fitnessValue;
+    }
+
+    public void setFitnessValue(double fitnessValue) {
+        this.fitnessValue = fitnessValue;
     }
 }

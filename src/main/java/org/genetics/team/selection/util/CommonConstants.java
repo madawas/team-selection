@@ -32,4 +32,5 @@ public class CommonConstants {
     public static final String HEADER_ID = "id";
     public static final String HEADER_TYPE = "type";
     public static final String HEADER_NAME = "name";
+    public static final String ATTRIBUTE_PREFIX = "attribute";
 }
