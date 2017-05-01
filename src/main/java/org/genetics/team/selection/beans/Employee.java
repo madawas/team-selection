@@ -16,12 +16,13 @@
 
 package org.genetics.team.selection.beans;
 
+import java.util.Map;
+
 public class Employee {
     private int id;
     private String name;
-    private byte[] gene;
     private String employeeType;
-    private double fitnessValue;
+    private Map<String, Integer> attributeValues;
 
     public Employee(int id, String employeeType, String name) {
         this.id = id;
@@ -45,14 +46,6 @@ public class Employee {
         this.id = id;
     }
 
-    public byte[] getGene() {
-        return gene;
-    }
-
-    public void setGene(byte[] gene) {
-        this.gene = gene;
-    }
-
     public String getName() {
         return name;
     }
@@ -61,11 +54,11 @@ public class Employee {
         this.name = name;
     }
 
-    public double getFitnessValue() {
-        return fitnessValue;
+    public Map<String, Integer> getAttributeValues() {
+        return attributeValues;
     }
 
-    public void setFitnessValue(double fitnessValue) {
-        this.fitnessValue = fitnessValue;
+    public void setAttributeValues(Map<String, Integer> attributeValues) {
+        this.attributeValues = attributeValues;
     }
 }

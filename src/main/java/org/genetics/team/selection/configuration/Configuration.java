@@ -28,7 +28,6 @@ public final class Configuration {
     private String[] types;
     private Integer attributeCount;
     private Map<String, String> headerMapping;
-    private Map<String, List<Integer>> attributeRanges;
     private List<String> excluded;
     private Double mutationRate;
     private Integer generations;
@@ -96,13 +95,5 @@ public final class Configuration {
 
     public void setTypes(String[] types) {
         this.types = types;
-    }
-
-    public Map<String, List<Integer>> getAttributeRanges() {
-        return attributeRanges;
-    }
-
-    public void setAttributeRanges(Map<String, List<Integer>> attributeRanges) {
-        this.attributeRanges = attributeRanges;
     }
 }

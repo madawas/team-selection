@@ -19,7 +19,7 @@ package org.genetics.team.selection.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.apache.log4j.Logger;
-import org.genetics.team.selection.beans.Employee;
+import org.genetics.team.selection.algorithm.Population;
 import org.genetics.team.selection.configuration.Configuration;
 import org.genetics.team.selection.configuration.ConfigurationManager;
 import org.genetics.team.selection.util.CommonConstants;
@@ -42,6 +42,7 @@ public class GUIForm {
     private InputProcessor inputProcessor;
     private Map<String, JTextField> teamConfigComponentMap;
     private Map<String, JTextField> attributeConfigComponentMap;
+    private Population population;
 
     private JFrame frame;
     private JPanel dialogPane;
@@ -58,6 +59,7 @@ public class GUIForm {
     public GUIForm() {
         this.appConfiguration = readAppConfiguration();
         this.inputProcessor = generateInputProcessor();
+        this.population = new Population(this.appConfiguration);
         initComponents();
     }
 
@@ -81,8 +83,7 @@ public class GUIForm {
             throw new IllegalStateException("Application Configuration is empty. Unable to process");
         }
 
-        return InputProcessor
-                .getInputProcessor(this.appConfiguration.getAttributeCount(), this.appConfiguration.getHeaderMapping());
+        return InputProcessor.getInputProcessor(this.appConfiguration);
     }
 
     private void runButtonActionPerformed(ActionEvent e) {
@@ -93,7 +94,7 @@ public class GUIForm {
                 teamDefinition
                         .put((String) entry.getKey(), Integer.parseInt(((JTextField) entry.getValue()).getText()));
             }
-            this.inputProcessor.setTeamDefinition(teamDefinition);
+            this.population.generateInitialPopulation(teamDefinition);
         }
 
         if (attributeConfigComponentMap != null) {
@@ -103,15 +104,7 @@ public class GUIForm {
                 attributeWeights
                         .put((String) entry.getKey(), Double.parseDouble(((JTextField) entry.getValue()).getText()));
             }
-            this.inputProcessor.setAttributeWeights(attributeWeights);
         }
-
-        try {
-            List<Employee> list = this.inputProcessor.readPopulation(this.appConfiguration.getPopulationData());
-        } catch (IOException e1) {
-            log.error("Error occurred when reading the input file.", e1);
-        }
-
     }
 
     private void createUIComponents() {
@@ -281,6 +274,12 @@ public class GUIForm {
 
     public static void main(String[] args) {
         GUIForm mainForm = new GUIForm();
+        try {
+            mainForm.population.setPopulation(
+                    mainForm.inputProcessor.readPopulation(mainForm.appConfiguration.getPopulationData()));
+        } catch (IOException e) {
+            log.error("Error occurred when reading the input file.", e);
+        }
         mainForm.frame.setVisible(true);
     }
 }

@@ -21,11 +21,13 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.genetics.team.selection.beans.Employee;
+import org.genetics.team.selection.configuration.Configuration;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,18 +35,16 @@ public class InputProcessor {
     private static Logger log = Logger.getLogger(InputProcessor.class);
     private static InputProcessor inputProcessor;
     private final String[] INPUT_HEADER;
-    private final Map<String, String> HEADER_MAPPING;
-    private final int attributeCount;
-    private Map<String, Integer> teamDefinition;
-    private Map<String, Double> attributeWeights;
+    private Configuration configuration;
 
-    private InputProcessor(String[] inputHeaders, Map<String, String> HEADER_MAPPING, int attributeCount) {
+    private InputProcessor(String[] inputHeaders, Configuration configuration) {
         this.INPUT_HEADER = inputHeaders;
-        this.HEADER_MAPPING = HEADER_MAPPING;
-        this.attributeCount = attributeCount;
+        this.configuration = configuration;
     }
 
-    public static InputProcessor getInputProcessor(int attributeCount, Map<String, String> headerMap) {
+    public static InputProcessor getInputProcessor(Configuration configuration) {
+        Map<String, String> headerMap = configuration.getHeaderMapping();
+        Integer attributeCount = configuration.getAttributeCount();
         if(inputProcessor == null) {
             String[] inputHeaders = new String[headerMap.size()];
             inputHeaders[0] = headerMap.get(CommonConstants.HEADER_ID);
@@ -54,7 +54,7 @@ public class InputProcessor {
             for(int i = 1; i < 1 + attributeCount; ++i) {
                 inputHeaders[i+2] = headerMap.get(CommonConstants.ATTRIBUTE_PREFIX + i);
             }
-            inputProcessor = new InputProcessor(inputHeaders, headerMap, attributeCount);
+            inputProcessor = new InputProcessor(inputHeaders, configuration);
         }
         return inputProcessor;
     }
@@ -84,57 +84,41 @@ public class InputProcessor {
     /**
      *
      * @param path path of the input CSV file
-     * @return list of {@link Employee}
+     * @return Map of {@link Employee}
      * @throws IOException
      */
-    public List<Employee> readPopulation(String path) throws IOException {
+    public Map<String, List<Employee>> readPopulation(String path) throws IOException {
         log.info("Reading Population Data");
-        List<Employee> employeeList = new ArrayList<>();
+        Map<String, String> headerMapping = configuration.getHeaderMapping();
+        Integer attributeCount = configuration.getAttributeCount();
+        Map<String, List<Employee>> employees = new HashMap<>();
         CSVFormat csvFormat = CSVFormat.DEFAULT.withFirstRecordAsHeader();
         FileReader fileReader = new FileReader(path);
         CSVParser csvFileParser = new CSVParser(fileReader, csvFormat);
 
         List<CSVRecord> csvRecords = csvFileParser.getRecords();
         for(CSVRecord csvRecord: csvRecords) {
-            int id = Integer.parseInt(csvRecord.get(HEADER_MAPPING.get(CommonConstants.HEADER_ID)));
-            String type = csvRecord.get(HEADER_MAPPING.get(CommonConstants.HEADER_TYPE));
-            String name = csvRecord.get(HEADER_MAPPING.get(CommonConstants.HEADER_NAME));
+            int id = Integer.parseInt(csvRecord.get(headerMapping.get(CommonConstants.HEADER_ID)));
+            String type = csvRecord.get(headerMapping.get(CommonConstants.HEADER_TYPE));
+            String name = csvRecord.get(headerMapping.get(CommonConstants.HEADER_NAME));
 
             Employee employee = new Employee(id, type, name);
-            employee.setFitnessValue(generateFitnessValue(csvRecord));
-            employee.setGene(generateEmployeeGene());
-            employeeList.add(employee);
+            Map<String, Integer> attributeMap = new HashMap<>();
+            for (int i = 1; i < attributeCount + 1; ++i) {
+                String attribute = headerMapping.get(CommonConstants.ATTRIBUTE_PREFIX + i);
+                int attributeValue = Integer.parseInt(csvRecord.get(attribute));
+                attributeMap.put(attribute, attributeValue);
+            }
+            employee.setAttributeValues(attributeMap);
+
+            if(employees.get(employee.getEmployeeType()) != null) {
+                employees.get(employee.getEmployeeType()).add(employee);
+            } else {
+                List<Employee> temp = new ArrayList<>();
+                temp.add(employee);
+                employees.put(employee.getEmployeeType(), temp);
+            }
         }
-        return employeeList;
-    }
-
-    private double generateFitnessValue(CSVRecord csvRecord) {
-        double fitness = 0;
-        for (int i = 1; i < attributeCount + 1; ++i) {
-            String attribute = HEADER_MAPPING.get(CommonConstants.ATTRIBUTE_PREFIX + i);
-            fitness += Integer.parseInt(csvRecord.get(attribute)) * attributeWeights.get(attribute);
-        }
-        return fitness/attributeCount;
-    }
-
-    private byte[] generateEmployeeGene() {
-        //TODO: implement gene generation
-        return null;
-    }
-
-    public Map<String, Integer> getTeamDefinition() {
-        return teamDefinition;
-    }
-
-    public void setTeamDefinition(Map<String, Integer> teamDefinition) {
-        this.teamDefinition = teamDefinition;
-    }
-
-    public Map<String, Double> getAttributeWeights() {
-        return attributeWeights;
-    }
-
-    public void setAttributeWeights(Map<String, Double> attributeWeights) {
-        this.attributeWeights = attributeWeights;
+        return employees;
     }
 }

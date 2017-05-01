@@ -14,12 +14,6 @@ headerMapping:
   attribute2: PERFORMANCE
   attribute3: PROFESSIONAL
 
-# Attribute bit length
-attributeRanges:
-  attribute1: [1, 1, 5]
-  attribute2: [1, 1, 5]
-  attribute3: [1, 1, 5]
-
 # Exclude !attributes
 excluded:
 
