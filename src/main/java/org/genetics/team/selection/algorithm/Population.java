@@ -19,6 +19,7 @@ package org.genetics.team.selection.algorithm;
 import org.genetics.team.selection.beans.Employee;
 import org.genetics.team.selection.beans.Team;
 import org.genetics.team.selection.configuration.Configuration;
+import org.genetics.team.selection.util.CommonConstants;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -56,7 +57,6 @@ public class Population {
             Team team = new Team(employeeList);
             initialPopulation.add(team);
         }
-        System.out.println(initialPopulation.size());
     }
 
     private Set<Integer> getRandomNumbers(int min, int max, int count) {
@@ -67,5 +67,24 @@ public class Population {
             generated.add(next);
         }
         return generated;
+    }
+
+    public void calculateInitialFinesses(Map<String, Double> attributeWeights) {
+        Map<String, String> headerMapping = this.configuration.getHeaderMapping();
+        int attributeCount = this.configuration.getAttributeCount();
+        for(Team team: initialPopulation) {
+            double fitness = 0;
+            List<Employee> employees = team.getEmployees();
+            for (int i = 1; i < attributeCount + 1; ++i) {
+                String attribute = headerMapping.get(CommonConstants.ATTRIBUTE_PREFIX + i);
+                double temp = 0;
+                for(Employee employee: employees) {
+                    temp += employee.getAttributeValues().get(attribute);
+                }
+                fitness += temp*attributeWeights.get(attribute)/employees.size();
+            }
+            fitness = fitness/attributeCount;
+            team.setFitness(fitness);
+        }
     }
 }

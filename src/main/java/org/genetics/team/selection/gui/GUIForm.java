@@ -104,7 +104,9 @@ public class GUIForm {
                 attributeWeights
                         .put((String) entry.getKey(), Double.parseDouble(((JTextField) entry.getValue()).getText()));
             }
+            this.population.calculateInitialFinesses(attributeWeights);
         }
+        System.out.printf("holy");
     }
 
     private void createUIComponents() {
