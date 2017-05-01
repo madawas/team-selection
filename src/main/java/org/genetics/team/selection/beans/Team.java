@@ -19,7 +19,7 @@ package org.genetics.team.selection.beans;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Team {
+public class Team implements Comparable<Team> {
     private static final AtomicInteger count = new AtomicInteger(0);
     private final int id;
     private final List<Employee> employees;
@@ -46,4 +46,8 @@ public class Team {
         return id;
     }
 
+    @Override
+    public int compareTo(Team o) {
+        return Double.compare(this.fitness, o.fitness);
+    }
 }

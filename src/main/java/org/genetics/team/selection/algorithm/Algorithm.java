@@ -22,14 +22,15 @@ import org.genetics.team.selection.beans.Team;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Algorithm {
     private Population population;
     private List<Team> generation;
     private Team currentFittest;
-    private Double crossoverRate;
-    private Double mutationRate;
-    private Integer maxGenerations;
+    private final Double crossoverRate;
+    private final Double mutationRate;
+    private final Integer maxGenerations;
     Random random;
 
     public Algorithm(Population population) {
@@ -42,12 +43,19 @@ public class Algorithm {
     }
 
     public void runGA() {
-        while (--maxGenerations >= 0) {
-            evaluateCurrentFittest();
-            selection();
-            crossover();
-            mutate();
-            evaluateCurrentFittest();
+        int gen = maxGenerations;
+        //        while (--gen >= 0) {
+        evaluateCurrentFittest();
+        selection();
+        crossover();
+        mutate();
+        selectFittest();
+        for (int i = 0; i < 3; ++i) {
+            this.generation.add(this.population.generateTeam());
+        }
+        //        }
+        for (Employee employee : this.currentFittest.getEmployees()) {
+            System.out.println(employee.getName());
         }
     }
 
@@ -59,29 +67,32 @@ public class Algorithm {
 
     private void selection() {
         List<Team> shuffledPopulation = new ArrayList<>();
+        int popSize = this.population.getConfiguration().getInitialPopulationSize();
         double sumFitness = 0;
         for (Team team : generation) {
             sumFitness += team.getFitness();
         }
-        double temp = 0;
-        for (Team team : generation) {
+        while (--popSize >= 0) {
+            double temp = 0;
             double rand = random.nextDouble() * sumFitness;
-            temp += team.getFitness();
-            if (temp >= rand) {
-                shuffledPopulation.add(team);
+            for (Team team : generation) {
+                temp += team.getFitness();
+                if (temp >= rand) {
+                    shuffledPopulation.add(team);
+                    break;
+                }
             }
-            temp = 0;
         }
         this.generation = shuffledPopulation;
     }
 
     private void crossover() {
         List<Team> crossedPopulation = new ArrayList<>();
+        int length = this.generation.get(0).getEmployees().size() - 1;
         for (int i = 0; i < this.generation.size(); i = i + 2) {
-            double rand = random.nextDouble();
-            if (rand <= this.crossoverRate) {
+            if (random.nextDouble() <= this.crossoverRate) {
                 int crossoverPoint = random.nextInt(this.generation.size());
-                if (crossoverPoint != 0 || crossoverPoint != this.generation.size() - 1) {
+                if (crossoverPoint > 0 && crossoverPoint < length) {
                     List<Employee> team1_list = this.generation.get(i).getEmployees();
                     List<Employee> team2_list = this.generation.get(i + 1).getEmployees();
 
@@ -110,6 +121,51 @@ public class Algorithm {
     }
 
     private void mutate() {
+        List<Team> toRemove = new ArrayList<>(this.generation.size());
+        List<List<Employee>> toAdd = new ArrayList<>(this.generation.size());
+        for (Team team : this.generation) {
+            boolean isMutated = false;
+            List<Employee> employeeList = team.getEmployees();
+            List<Integer> removeIndexes = new ArrayList<>(employeeList.size());
+            for (int i = 0; i < employeeList.size(); ++i) {
+                if (random.nextDouble() <= this.mutationRate) {
+                    isMutated = true;
+                    removeIndexes.add(i);
+                }
+            }
 
+            for (int index : removeIndexes) {
+                String type = employeeList.get(index).getEmployeeType();
+                employeeList.remove(index);
+                employeeList.add(index, this.population.generateEmployee(type));
+            }
+            if (isMutated) {
+                toRemove.add(team);
+                toAdd.add(employeeList);
+            }
+        }
+
+        for (Team team : toRemove) {
+            this.generation.remove(team);
+        }
+
+        this.generation.addAll(toAdd.stream().map(employees -> this.population.generateTeam(employees))
+                .collect(Collectors.toList()));
+    }
+
+    private void selectFittest() {
+        for (int i = 0; i < 3; ++i) {
+            Team min = null;
+            for (Team element : this.generation) {
+                if (min == null) {
+                    min = element;
+                    continue;
+                }
+                if (element.compareTo(min) < 0) {
+                    min = element;
+                }
+            }
+            this.generation.remove(min);
+        }
     }
 }

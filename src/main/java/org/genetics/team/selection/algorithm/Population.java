@@ -35,10 +35,12 @@ public class Population {
     private List<Team> initialPopulation;
     private Map<String, Integer> teamDefinition;
     private Map<String, Double> attributeWeights;
+    private Random random;
 
     public Population(Configuration configuration) {
         this.configuration = configuration;
         this.initialPopulation = new ArrayList<>();
+        this.random = new Random();
     }
 
     public void setPopulation(Map<String, List<Employee>> population) {
@@ -53,10 +55,9 @@ public class Population {
     }
 
     private Set<Integer> getRandomNumbers(int min, int max, int count) {
-        Random random = new Random();
         Set<Integer> generated = new LinkedHashSet<>();
         while (generated.size() < count) {
-            Integer next = random.nextInt((max - min) + 1) + min;
+            Integer next = this.random.nextInt((max - min) + 1) + min;
             generated.add(next);
         }
         return generated;
@@ -92,10 +93,15 @@ public class Population {
         return team;
     }
 
-    public Team generateTeam(List<Employee> employeeList) {
+    Team generateTeam(List<Employee> employeeList) {
         Team team = new Team(employeeList);
         team.setFitness(calculateFitness(team));
         return team;
+    }
+
+    Employee generateEmployee(String type) {
+        int index = this.random.nextInt(population.get(type).size());
+        return population.get(type).get(index);
     }
 
     public Map<String, Integer> getTeamDefinition() {

@@ -109,10 +109,7 @@ public class GUIForm {
         }
         this.population.generateInitialPopulation();
 
-        Algorithm algorithm = new Algorithm(this.population.getInitialPopulation());
-        algorithm.setCrossoverRate(this.appConfiguration.getCrossoverRate());
-        algorithm.setMutationRate(this.appConfiguration.getMutationRate());
-        algorithm.setMaxGenerations(this.appConfiguration.getGenerations());
+        Algorithm algorithm = new Algorithm(this.population);
         algorithm.runGA();
     }
 
