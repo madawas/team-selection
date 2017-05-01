@@ -30,6 +30,7 @@ public final class Configuration {
     private Map<String, String> headerMapping;
     private List<String> excluded;
     private Double mutationRate;
+    private Double crossoverRate;
     private Integer generations;
     private Integer initialPopulationSize;
 
@@ -95,5 +96,13 @@ public final class Configuration {
 
     public void setTypes(String[] types) {
         this.types = types;
+    }
+
+    public Double getCrossoverRate() {
+        return crossoverRate;
+    }
+
+    public void setCrossoverRate(Double crossoverRate) {
+        this.crossoverRate = crossoverRate;
     }
 }

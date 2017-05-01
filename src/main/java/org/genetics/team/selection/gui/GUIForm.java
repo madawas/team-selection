@@ -19,6 +19,7 @@ package org.genetics.team.selection.gui;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.apache.log4j.Logger;
+import org.genetics.team.selection.algorithm.Algorithm;
 import org.genetics.team.selection.algorithm.Population;
 import org.genetics.team.selection.configuration.Configuration;
 import org.genetics.team.selection.configuration.ConfigurationManager;
@@ -107,7 +108,12 @@ public class GUIForm {
             this.population.setAttributeWeights(attributeWeights);
         }
         this.population.generateInitialPopulation();
-        System.out.printf("holy");
+
+        Algorithm algorithm = new Algorithm(this.population.getInitialPopulation());
+        algorithm.setCrossoverRate(this.appConfiguration.getCrossoverRate());
+        algorithm.setMutationRate(this.appConfiguration.getMutationRate());
+        algorithm.setMaxGenerations(this.appConfiguration.getGenerations());
+        algorithm.runGA();
     }
 
     private void createUIComponents() {

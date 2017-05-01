@@ -19,5 +19,6 @@ excluded:
 
 # Application related configurations
 mutationRate: 0.001
+crossoverRate: 0.6
 generations: 1000
 initialPopulationSize: 10

@@ -92,6 +92,12 @@ public class Population {
         return team;
     }
 
+    public Team generateTeam(List<Employee> employeeList) {
+        Team team = new Team(employeeList);
+        team.setFitness(calculateFitness(team));
+        return team;
+    }
+
     public Map<String, Integer> getTeamDefinition() {
         return teamDefinition;
     }
@@ -106,5 +112,13 @@ public class Population {
 
     public void setAttributeWeights(Map<String, Double> attributeWeights) {
         this.attributeWeights = attributeWeights;
+    }
+
+    public List<Team> getInitialPopulation() {
+        return this.initialPopulation;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
     }
 }
