@@ -94,7 +94,7 @@ public class GUIForm {
                 teamDefinition
                         .put((String) entry.getKey(), Integer.parseInt(((JTextField) entry.getValue()).getText()));
             }
-            this.population.generateInitialPopulation(teamDefinition);
+            this.population.setTeamDefinition(teamDefinition);
         }
 
         if (attributeConfigComponentMap != null) {
@@ -104,8 +104,9 @@ public class GUIForm {
                 attributeWeights
                         .put((String) entry.getKey(), Double.parseDouble(((JTextField) entry.getValue()).getText()));
             }
-            this.population.calculateInitialFinesses(attributeWeights);
+            this.population.setAttributeWeights(attributeWeights);
         }
+        this.population.generateInitialPopulation();
         System.out.printf("holy");
     }
 

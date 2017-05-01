@@ -33,6 +33,8 @@ public class Population {
     private Configuration configuration;
     private Map<String, List<Employee>> population;
     private List<Team> initialPopulation;
+    private Map<String, Integer> teamDefinition;
+    private Map<String, Double> attributeWeights;
 
     public Population(Configuration configuration) {
         this.configuration = configuration;
@@ -43,19 +45,10 @@ public class Population {
         this.population = population;
     }
 
-    public void generateInitialPopulation(Map<String, Integer> teamDefinition) {
+    public void generateInitialPopulation() {
         int initialPopSize = this.configuration.getInitialPopulationSize();
-        String[] types = this.configuration.getTypes();
         while(--initialPopSize >= 0) {
-            List<Employee> employeeList = new ArrayList<>();
-            for(String type: types) {
-                int count = teamDefinition.get(type);
-                List<Employee> candidates = population.get(type);
-                Set<Integer> rnd = getRandomNumbers(0, candidates.size()-1, count);
-                employeeList.addAll(rnd.stream().map(candidates::get).collect(Collectors.toList()));
-            }
-            Team team = new Team(employeeList);
-            initialPopulation.add(team);
+            initialPopulation.add(generateTeam());
         }
     }
 
@@ -69,22 +62,49 @@ public class Population {
         return generated;
     }
 
-    public void calculateInitialFinesses(Map<String, Double> attributeWeights) {
+    public double calculateFitness(Team team) {
         Map<String, String> headerMapping = this.configuration.getHeaderMapping();
         int attributeCount = this.configuration.getAttributeCount();
-        for(Team team: initialPopulation) {
-            double fitness = 0;
-            List<Employee> employees = team.getEmployees();
-            for (int i = 1; i < attributeCount + 1; ++i) {
-                String attribute = headerMapping.get(CommonConstants.ATTRIBUTE_PREFIX + i);
-                double temp = 0;
-                for(Employee employee: employees) {
-                    temp += employee.getAttributeValues().get(attribute);
-                }
-                fitness += temp*attributeWeights.get(attribute)/employees.size();
+        double fitness = 0;
+        List<Employee> employees = team.getEmployees();
+        for (int i = 1; i < attributeCount + 1; ++i) {
+            String attribute = headerMapping.get(CommonConstants.ATTRIBUTE_PREFIX + i);
+            double temp = 0;
+            for (Employee employee : employees) {
+                temp += employee.getAttributeValues().get(attribute);
             }
-            fitness = fitness/attributeCount;
-            team.setFitness(fitness);
+            fitness += temp * attributeWeights.get(attribute) / employees.size();
         }
+        return fitness / attributeCount;
+    }
+
+    public Team generateTeam() {
+        String[] types = this.configuration.getTypes();
+        List<Employee> employeeList = new ArrayList<>();
+        for(String type: types) {
+            int count = teamDefinition.get(type);
+            List<Employee> candidates = population.get(type);
+            Set<Integer> rnd = getRandomNumbers(0, candidates.size()-1, count);
+            employeeList.addAll(rnd.stream().map(candidates::get).collect(Collectors.toList()));
+        }
+        Team team = new Team(employeeList);
+        team.setFitness(calculateFitness(team));
+        return team;
+    }
+
+    public Map<String, Integer> getTeamDefinition() {
+        return teamDefinition;
+    }
+
+    public void setTeamDefinition(Map<String, Integer> teamDefinition) {
+        this.teamDefinition = teamDefinition;
+    }
+
+    public Map<String, Double> getAttributeWeights() {
+        return attributeWeights;
+    }
+
+    public void setAttributeWeights(Map<String, Double> attributeWeights) {
+        this.attributeWeights = attributeWeights;
     }
 }
