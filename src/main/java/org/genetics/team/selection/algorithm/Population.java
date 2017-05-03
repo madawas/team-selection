@@ -27,7 +27,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 public class Population {
     private Configuration configuration;
@@ -49,8 +54,11 @@ public class Population {
 
     public void generateInitialPopulation() {
         int initialPopSize = this.configuration.getInitialPopulationSize();
-        while(--initialPopSize >= 0) {
-            initialPopulation.add(generateTeam());
+        if (this.initialPopulation.size() > 0) {
+            this.initialPopulation.clear();
+        }
+        while (--initialPopSize >= 0) {
+            this.initialPopulation.add(generateTeam());
         }
     }
 
@@ -63,7 +71,7 @@ public class Population {
         return generated;
     }
 
-    public double calculateFitness(Team team) {
+    private double calculateFitness(Team team) {
         Map<String, String> headerMapping = this.configuration.getHeaderMapping();
         int attributeCount = this.configuration.getAttributeCount();
         double fitness = 0;
@@ -79,13 +87,13 @@ public class Population {
         return fitness / attributeCount;
     }
 
-    public Team generateTeam() {
+    Team generateTeam() {
         String[] types = this.configuration.getTypes();
         List<Employee> employeeList = new ArrayList<>();
-        for(String type: types) {
+        for (String type : types) {
             int count = teamDefinition.get(type);
             List<Employee> candidates = population.get(type);
-            Set<Integer> rnd = getRandomNumbers(0, candidates.size()-1, count);
+            Set<Integer> rnd = getRandomNumbers(0, candidates.size() - 1, count);
             employeeList.addAll(rnd.stream().map(candidates::get).collect(Collectors.toList()));
         }
         Team team = new Team(employeeList);
@@ -94,8 +102,11 @@ public class Population {
     }
 
     Team generateTeam(List<Employee> employeeList) {
+        List<Employee> unique = employeeList.stream().collect(
+                collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Employee::getId))), ArrayList::new));
         Team team = new Team(employeeList);
-        team.setFitness(calculateFitness(team));
+        double fitness = unique.size() < employeeList.size() ? 0 : calculateFitness(team);
+        team.setFitness(fitness);
         return team;
     }
 

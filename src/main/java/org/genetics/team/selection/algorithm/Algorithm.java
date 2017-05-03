@@ -20,19 +20,31 @@ import org.genetics.team.selection.beans.Employee;
 import org.genetics.team.selection.beans.Team;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+/**
+ * This class contains the genetic algorithm related methods and exposes a public method runGA which will run genetic
+ * operations based on given configurations.
+ */
 public class Algorithm {
     private Population population;
     private List<Team> generation;
+    private List<Team> currentGeneration;
     private Team currentFittest;
     private final Double crossoverRate;
     private final Double mutationRate;
     private final Integer maxGenerations;
-    Random random;
+    private Random random;
 
+    /**
+     * Constructs an {@link Algorithm} object.
+     *
+     * @param population {@link Population}
+     */
     public Algorithm(Population population) {
         this.population = population;
         this.generation = population.getInitialPopulation();
@@ -42,37 +54,55 @@ public class Algorithm {
         this.random = new Random();
     }
 
+    /**
+     * This method will run the genetic algorithm.
+     */
     public void runGA() {
         int gen = maxGenerations;
-        //        while (--gen >= 0) {
+        int populationSize = this.population.getConfiguration().getInitialPopulationSize();
+        int selectionSize = Math.round(populationSize * 0.7f);
         evaluateCurrentFittest();
-        selection();
-        crossover();
-        mutate();
-        selectFittest();
-        for (int i = 0; i < 3; ++i) {
-            this.generation.add(this.population.generateTeam());
+        while (--gen >= 0) {
+            selection(populationSize);
+            crossover();
+            mutate();
+            selectFittest(selectionSize);
+            int currentGenerationSize = this.generation.size();
+            for (int i = 0; i < populationSize - currentGenerationSize; ++i) {
+                this.generation.add(this.population.generateTeam());
+            }
+            evaluateCurrentFittest();
         }
-        //        }
         for (Employee employee : this.currentFittest.getEmployees()) {
             System.out.println(employee.getName());
         }
+        System.out.println(this.currentFittest.getFitness());
     }
 
+    /**
+     * Evaluates current fittest chromosome from the current population.
+     */
     private void evaluateCurrentFittest() {
-        this.currentFittest = this.generation.get(0);
+        if (currentFittest == null) {
+            this.currentFittest = this.generation.get(0);
+        }
         generation.stream().filter(team -> team.getFitness() > this.currentFittest.getFitness())
                 .forEach(team -> this.currentFittest = team);
     }
 
-    private void selection() {
+    /**
+     * This method selects individuals based on Roulette Wheel selection mechanism and updates the current generation
+     * with selected chromosomes.
+     *
+     * @param populationSize size of the population.
+     */
+    private void selection(int populationSize) {
         List<Team> shuffledPopulation = new ArrayList<>();
-        int popSize = this.population.getConfiguration().getInitialPopulationSize();
         double sumFitness = 0;
         for (Team team : generation) {
             sumFitness += team.getFitness();
         }
-        while (--popSize >= 0) {
+        while (--populationSize >= 0) {
             double temp = 0;
             double rand = random.nextDouble() * sumFitness;
             for (Team team : generation) {
@@ -83,18 +113,22 @@ public class Algorithm {
                 }
             }
         }
-        this.generation = shuffledPopulation;
+        this.currentGeneration = shuffledPopulation;
     }
 
+    /**
+     * This method does single point crossover operation on selected chromosomes and updates the current generation with
+     * crossed population.
+     */
     private void crossover() {
         List<Team> crossedPopulation = new ArrayList<>();
-        int length = this.generation.get(0).getEmployees().size() - 1;
-        for (int i = 0; i < this.generation.size(); i = i + 2) {
+        int length = this.currentGeneration.get(0).getEmployees().size() - 1;
+        for (int i = 0; i < this.currentGeneration.size(); i = i + 2) {
             if (random.nextDouble() <= this.crossoverRate) {
-                int crossoverPoint = random.nextInt(this.generation.size());
+                int crossoverPoint = random.nextInt(length);
                 if (crossoverPoint > 0 && crossoverPoint < length) {
-                    List<Employee> team1_list = this.generation.get(i).getEmployees();
-                    List<Employee> team2_list = this.generation.get(i + 1).getEmployees();
+                    List<Employee> team1_list = this.currentGeneration.get(i).getEmployees();
+                    List<Employee> team2_list = this.currentGeneration.get(i + 1).getEmployees();
 
                     List<Employee> child1_list = new ArrayList<>();
                     List<Employee> child2_list = new ArrayList<>();
@@ -113,17 +147,17 @@ public class Algorithm {
                     continue;
                 }
             }
-            crossedPopulation.add(this.generation.get(i));
-            crossedPopulation.add(this.generation.get(i + 1));
+            crossedPopulation.add(this.currentGeneration.get(i));
+            crossedPopulation.add(this.currentGeneration.get(i + 1));
         }
 
-        this.generation = crossedPopulation;
+        this.currentGeneration = crossedPopulation;
     }
 
     private void mutate() {
-        List<Team> toRemove = new ArrayList<>(this.generation.size());
-        List<List<Employee>> toAdd = new ArrayList<>(this.generation.size());
-        for (Team team : this.generation) {
+        List<Team> toRemove = new ArrayList<>(this.currentGeneration.size());
+        List<List<Employee>> toAdd = new ArrayList<>(this.currentGeneration.size());
+        for (Team team : this.currentGeneration) {
             boolean isMutated = false;
             List<Employee> employeeList = team.getEmployees();
             List<Integer> removeIndexes = new ArrayList<>(employeeList.size());
@@ -146,26 +180,23 @@ public class Algorithm {
         }
 
         for (Team team : toRemove) {
-            this.generation.remove(team);
+            this.currentGeneration.remove(team);
         }
 
-        this.generation.addAll(toAdd.stream().map(employees -> this.population.generateTeam(employees))
+        this.currentGeneration.addAll(toAdd.stream().map(employees -> this.population.generateTeam(employees))
                 .collect(Collectors.toList()));
     }
 
-    private void selectFittest() {
-        for (int i = 0; i < 3; ++i) {
-            Team min = null;
-            for (Team element : this.generation) {
-                if (min == null) {
-                    min = element;
-                    continue;
-                }
-                if (element.compareTo(min) < 0) {
-                    min = element;
-                }
+    private void selectFittest(int selectionSize) {
+        List<Team> combinedGen = Stream.concat(this.generation.stream(), this.currentGeneration.stream())
+                .collect(Collectors.toList());
+        Collections.sort(combinedGen, Team::compareTo);
+        this.generation.clear();
+
+        for (int i = combinedGen.size() - 1; i >= combinedGen.size() - selectionSize; --i) {
+            if(combinedGen.get(i).getFitness() > 0) {
+                this.generation.add(combinedGen.get(i));
             }
-            this.generation.remove(min);
         }
     }
 }
