@@ -33,10 +33,6 @@
 
     <files>
         <file>
-            <source>LICENSE</source>
-            <fileMode>0644</fileMode>
-        </file>
-        <file>
             <source>config.yaml</source>
             <outputDirectory>conf/</outputDirectory>
             <fileMode>0644</fileMode>
