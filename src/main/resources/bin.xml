@@ -42,5 +42,10 @@
             <outputDirectory>samples/</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
+        <file>
+            <source>src/main/resources/log4j.properties</source>
+            <outputDirectory>conf/</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
     </files>
 </assembly>
