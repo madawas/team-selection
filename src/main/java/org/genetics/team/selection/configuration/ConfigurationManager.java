@@ -19,6 +19,7 @@ package org.genetics.team.selection.configuration;
 import org.genetics.team.selection.util.CommonConstants;
 import org.yaml.snakeyaml.Yaml;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -35,6 +36,11 @@ public class ConfigurationManager {
         Yaml yaml = new Yaml();
         try (InputStream in = Files.newInputStream(Paths.get(configPath))) {
             configuration = yaml.loadAs(in, Configuration.class);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(new JFrame(),
+                    "Error occurred when reading the config file.", "Dialog",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(-1);
         }
 
         if(configuration.getPopulationData() == null) {

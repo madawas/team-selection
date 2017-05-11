@@ -80,7 +80,7 @@ public class GUIForm {
      */
     private Configuration readAppConfiguration() {
         try {
-            return ConfigurationManager.getConfiguration("config.yaml");
+            return ConfigurationManager.getConfiguration(CommonConstants.DEFAULT_CONFIG_PATH);
         } catch (IOException e) {
             log.error("Error occurred while reading the system configuration ", e);
             System.exit(-1);
@@ -343,7 +343,7 @@ public class GUIForm {
     }
 
     public static void main(String[] args) {
-        String log4jConfPath = "src/main/resources/log4j.properties";
+        String log4jConfPath = CommonConstants.DEFAULT_LOG_PROPERTY_PATH;
         PropertyConfigurator.configure(log4jConfPath);
         GUIForm mainForm = new GUIForm();
         try {
@@ -351,6 +351,9 @@ public class GUIForm {
                     mainForm.inputProcessor.readPopulation(mainForm.appConfiguration.getPopulationData()));
         } catch (IOException e) {
             log.error("Error occurred when reading the input file.", e);
+            JOptionPane.showMessageDialog(new JFrame(),
+                    "Error occurred when reading the input file.", "Dialog",
+                    JOptionPane.ERROR_MESSAGE);
         }
         mainForm.frame.setVisible(true);
     }
