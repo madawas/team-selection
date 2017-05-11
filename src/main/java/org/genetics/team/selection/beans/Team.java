@@ -16,9 +16,13 @@
 
 package org.genetics.team.selection.beans;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * This class represents a Chromosome (Team in this context)
+ */
 public class Team implements Comparable<Team> {
     private static final AtomicInteger count = new AtomicInteger(0);
     private final int id;
@@ -27,7 +31,7 @@ public class Team implements Comparable<Team> {
 
     public Team(List<Employee> employees) {
         this.id = count.incrementAndGet();
-        this.employees = employees;
+        this.employees = Collections.unmodifiableList(employees);
     }
 
     public List<Employee> getEmployees() {

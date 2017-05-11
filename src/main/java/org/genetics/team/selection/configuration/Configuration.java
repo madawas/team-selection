@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This class holds the configuration
+ * This class holds all the configuration parameters of the application.
  */
 public final class Configuration {
 

@@ -18,6 +18,9 @@ package org.genetics.team.selection.beans;
 
 import java.util.Map;
 
+/**
+ * This class represents an Individual (Employee in the context)
+ */
 public class Employee {
     private int id;
     private String name;

@@ -24,6 +24,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * This class reads the configuration and
+ */
 public class ConfigurationManager {
 
     private static Configuration configuration;
@@ -39,15 +42,18 @@ public class ConfigurationManager {
         }
     }
 
+    /**
+     * Reads configuration from the given path
+     *
+     * @param configPath path to config file.
+     * @return {@link Configuration}
+     * @throws IOException
+     */
     public static Configuration getConfiguration(String configPath) throws IOException {
         if (configuration == null) {
             readConfiguration(configPath);
         }
 
         return configuration;
-    }
-
-    public static void setConfiguration(Configuration configuration) {
-        ConfigurationManager.configuration = configuration;
     }
 }

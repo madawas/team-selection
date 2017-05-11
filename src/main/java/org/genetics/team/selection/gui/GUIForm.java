@@ -18,25 +18,34 @@ package org.genetics.team.selection.gui;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.genetics.team.selection.algorithm.Algorithm;
 import org.genetics.team.selection.algorithm.Population;
 import org.genetics.team.selection.configuration.Configuration;
 import org.genetics.team.selection.configuration.ConfigurationManager;
 import org.genetics.team.selection.util.CommonConstants;
 import org.genetics.team.selection.util.InputProcessor;
+import org.genetics.team.selection.util.LogAppender;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is the main class and this generates the swing form
+ */
 public class GUIForm {
     private static Logger log = Logger.getLogger(GUIForm.class);
     private Configuration appConfiguration;
@@ -79,6 +88,11 @@ public class GUIForm {
         return null;
     }
 
+    /**
+     * This method generates the {@link InputProcessor}
+     *
+     * @return {@link InputProcessor}
+     */
     private InputProcessor generateInputProcessor() {
         if (this.appConfiguration == null) {
             throw new IllegalStateException("Application Configuration is empty. Unable to process");
@@ -87,25 +101,38 @@ public class GUIForm {
         return InputProcessor.getInputProcessor(this.appConfiguration);
     }
 
+    /**
+     * This method listens to the click event of "Run" button in the GUI.
+     *
+     * @param e click {@link ActionEvent}
+     */
     private void runButtonActionPerformed(ActionEvent e) {
-        if (teamConfigComponentMap != null) {
-            Map<String, Integer> teamDefinition = new HashMap<>();
-            for (Object o : teamConfigComponentMap.entrySet()) {
-                Map.Entry entry = (Map.Entry) o;
-                teamDefinition
-                        .put((String) entry.getKey(), Integer.parseInt(((JTextField) entry.getValue()).getText()));
+        this.console.setText("");
+        try {
+            if (teamConfigComponentMap != null) {
+                Map<String, Integer> teamDefinition = new HashMap<>();
+                for (Object o : teamConfigComponentMap.entrySet()) {
+                    Map.Entry entry = (Map.Entry) o;
+                    teamDefinition
+                            .put((String) entry.getKey(), Integer.parseInt(((JTextField) entry.getValue()).getText()));
+                }
+                this.population.setTeamDefinition(teamDefinition);
             }
-            this.population.setTeamDefinition(teamDefinition);
-        }
 
-        if (attributeConfigComponentMap != null) {
-            Map<String, Double> attributeWeights = new HashMap<>();
-            for (Object o : attributeConfigComponentMap.entrySet()) {
-                Map.Entry entry = (Map.Entry) o;
-                attributeWeights
-                        .put((String) entry.getKey(), Double.parseDouble(((JTextField) entry.getValue()).getText()));
+            if (attributeConfigComponentMap != null) {
+                Map<String, Double> attributeWeights = new HashMap<>();
+                for (Object o : attributeConfigComponentMap.entrySet()) {
+                    Map.Entry entry = (Map.Entry) o;
+                    attributeWeights.put((String) entry.getKey(),
+                            Double.parseDouble(((JTextField) entry.getValue()).getText()));
+                }
+                this.population.setAttributeWeights(attributeWeights);
             }
-            this.population.setAttributeWeights(attributeWeights);
+        } catch (NumberFormatException e1) {
+            JOptionPane.showMessageDialog(new JFrame(), e1.getClass() + e1.getMessage() +
+                            ", There is an error in values you provided, please correct them and try again. ", "Dialog",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
         }
         this.population.generateInitialPopulation();
 
@@ -113,14 +140,23 @@ public class GUIForm {
         algorithm.runGA();
     }
 
+    /**
+     * Creates dynamic UI components.
+     */
     private void createUIComponents() {
         createConfigPanel();
         createTeamPanel();
     }
 
+    /**
+     * Initializes team definition panel.
+     */
     private void createTeamPanel() {
         String[] types = this.appConfiguration.getTypes();
         if (types == null) {
+            JOptionPane.showMessageDialog(new JFrame(),
+                    "Types is a required configuration. Unable tp proceed with type being empty.", "Dialog",
+                    JOptionPane.ERROR_MESSAGE);
             throw new IllegalArgumentException(
                     "Types is a required configuration. Unable tp proceed with type being empty.");
         }
@@ -128,20 +164,31 @@ public class GUIForm {
         int cols = types.length > 5 ? 10 : types.length * 2;
         int rows = types.length > 5 ? (int) Math.ceil((double) types.length / 5) : 1;
         teamConfigPanel = new JPanel(new GridLayout(rows, cols, 10, 5));
-        for(String type: types) {
+        NumberFormatter formatter = new NumberFormatter(NumberFormat.getInstance());
+        formatter.setValueClass(Integer.class);
+        formatter.setMinimum(0);
+        formatter.setMaximum(Integer.MAX_VALUE);
+        formatter.setAllowsInvalid(false);
+        for (String type : types) {
             JLabel label = new JLabel(type + ":");
             label.setBorder(new EmptyBorder(0, 10, 0, 5));
             label.setHorizontalAlignment(SwingConstants.RIGHT);
-            JTextField textField = new JTextField();
+            JFormattedTextField textField = new JFormattedTextField(formatter);
             teamConfigComponentMap.put(type, textField);
             teamConfigPanel.add(label);
             teamConfigPanel.add(textField);
         }
     }
 
+    /**
+     * Initializes attribute weight configuration panel.
+     */
     private void createConfigPanel() {
         Map<String, String> headerMapping = this.appConfiguration.getHeaderMapping();
         if (headerMapping == null) {
+            JOptionPane.showMessageDialog(new JFrame(),
+                    "HeaderMapping is a required configuration. Unable tp proceed with header mapping being empty.",
+                    "Dialog", JOptionPane.ERROR_MESSAGE);
             throw new IllegalArgumentException(
                     "HeaderMapping is a required configuration. Unable tp proceed with header mapping being empty.");
         }
@@ -186,7 +233,7 @@ public class GUIForm {
         //======== frame ========
         {
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.setAlwaysOnTop(true);
+            frame.setAlwaysOnTop(false);
             Container frameContentPane = frame.getContentPane();
             frameContentPane.setLayout(new BorderLayout());
 
@@ -202,7 +249,6 @@ public class GUIForm {
                     //======== teamConfigPanel ========
                     {
                         teamConfigPanel.setBorder(new TitledBorder("Define Team Combination"));
-//                        teamConfigPanel.setLayout(new GridLayout());
                     }
                     contentPanel.add(teamConfigPanel,
                             new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH,
@@ -212,8 +258,10 @@ public class GUIForm {
 
                     //======== attributeConfigPane ========
                     {
-                        attributeConfigPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-                        attributeConfigPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                        attributeConfigPane
+                                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                        attributeConfigPane
+                                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
                         attributeConfigPane.setViewportBorder(null);
                         attributeConfigPane.setBorder(null);
 
@@ -240,8 +288,14 @@ public class GUIForm {
 
                             //---- console ----
                             console.setTabSize(4);
-                            console.setText("Console...");
                             textAreaScrollPane.setViewportView(console);
+                            textAreaScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                            textAreaScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                            console.setEditable(false);
+                            createLogAppender(console);
+                            DefaultCaret caret = (DefaultCaret)console.getCaret();
+                            caret.setUpdatePolicy(DefaultCaret.OUT_BOTTOM);
+
                         }
                         consolePanel.add(textAreaScrollPane,
                                 new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER,
@@ -266,7 +320,7 @@ public class GUIForm {
 
                     //---- runButton ----
                     runButton.setText("Run");
-                    runButton.addActionListener(e -> runButtonActionPerformed(e));
+                    runButton.addActionListener(this::runButtonActionPerformed);
                     buttonBar.add(runButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                             GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
                 }
@@ -278,7 +332,19 @@ public class GUIForm {
         }
     }
 
+    /**
+     * Initializes UI log appender.
+     *
+     * @param console {@link JTextArea}
+     */
+    private void createLogAppender(JTextArea console) {
+        LogAppender logAppender = new LogAppender(console);
+        LogManager.getRootLogger().addAppender(logAppender);
+    }
+
     public static void main(String[] args) {
+        String log4jConfPath = "src/main/resources/log4j.properties";
+        PropertyConfigurator.configure(log4jConfPath);
         GUIForm mainForm = new GUIForm();
         try {
             mainForm.population.setPopulation(

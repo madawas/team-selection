@@ -16,6 +16,7 @@
 
 package org.genetics.team.selection.algorithm;
 
+import org.apache.log4j.Logger;
 import org.genetics.team.selection.beans.Employee;
 import org.genetics.team.selection.beans.Team;
 
@@ -31,10 +32,13 @@ import java.util.stream.Stream;
  * operations based on given configurations.
  */
 public class Algorithm {
+    private static Logger log = Logger.getLogger(Algorithm.class);
     private Population population;
     private List<Team> generation;
     private List<Team> currentGeneration;
+    private Team previousFittest;
     private Team currentFittest;
+    private Integer fittestGen;
     private final Double crossoverRate;
     private final Double mutationRate;
     private final Integer maxGenerations;
@@ -61,8 +65,9 @@ public class Algorithm {
         int gen = maxGenerations;
         int populationSize = this.population.getConfiguration().getInitialPopulationSize();
         int selectionSize = Math.round(populationSize * 0.7f);
-        evaluateCurrentFittest();
+        evaluateCurrentFittest(1);
         while (--gen >= 0) {
+            log.info("Generation: " + (maxGenerations - gen));
             selection(populationSize);
             crossover();
             mutate();
@@ -71,23 +76,41 @@ public class Algorithm {
             for (int i = 0; i < populationSize - currentGenerationSize; ++i) {
                 this.generation.add(this.population.generateTeam());
             }
-            evaluateCurrentFittest();
+            evaluateCurrentFittest(maxGenerations - gen);
+            if ((maxGenerations - gen) > fittestGen + 10) {
+                if (this.currentFittest.getFitness() <= this.previousFittest.getFitness() * 1.01) {
+                    break;
+                } else {
+                    this.previousFittest = this.currentFittest;
+                }
+            }
         }
+        log.info("Fittest Team Selected");
+        log.info("======================");
         for (Employee employee : this.currentFittest.getEmployees()) {
-            System.out.println(employee.getName());
+            log.info(employee.getName());
         }
-        System.out.println(this.currentFittest.getFitness());
+        log.info("Team Fitness: " + this.currentFittest.getFitness());
     }
 
     /**
      * Evaluates current fittest chromosome from the current population.
+     *
+     * @param gen current generation;
      */
-    private void evaluateCurrentFittest() {
+    private void evaluateCurrentFittest(int gen) {
         if (currentFittest == null) {
             this.currentFittest = this.generation.get(0);
         }
-        generation.stream().filter(team -> team.getFitness() > this.currentFittest.getFitness())
-                .forEach(team -> this.currentFittest = team);
+        if (gen == 1) {
+            this.previousFittest = this.currentFittest;
+        }
+        this.generation.stream().filter(team -> team.getFitness() > this.currentFittest.getFitness()).forEach(team -> {
+            if (team.getFitness() > this.currentFittest.getFitness()) {
+                this.currentFittest = team;
+            }
+            this.fittestGen = gen;
+        });
     }
 
     /**
@@ -99,16 +122,17 @@ public class Algorithm {
     private void selection(int populationSize) {
         List<Team> shuffledPopulation = new ArrayList<>();
         double sumFitness = 0;
-        for (Team team : generation) {
+        for (Team team : this.generation) {
             sumFitness += team.getFitness();
         }
         while (--populationSize >= 0) {
             double temp = 0;
             double rand = random.nextDouble() * sumFitness;
-            for (Team team : generation) {
+            for (Team team : this.generation) {
                 temp += team.getFitness();
                 if (temp >= rand) {
                     shuffledPopulation.add(team);
+                    log.info("Selected Team " + team.getId());
                     break;
                 }
             }
@@ -127,6 +151,9 @@ public class Algorithm {
             if (random.nextDouble() <= this.crossoverRate) {
                 int crossoverPoint = random.nextInt(length);
                 if (crossoverPoint > 0 && crossoverPoint < length) {
+                    log.info("Crossover: Team-" + i + " with id: " + this.currentGeneration.get(i).getId() + " & Team-"
+                            + (i + 2) + " with id: " + this.currentGeneration.get(i + 1).getId() + " from position: "
+                            + crossoverPoint);
                     List<Employee> team1_list = this.currentGeneration.get(i).getEmployees();
                     List<Employee> team2_list = this.currentGeneration.get(i + 1).getEmployees();
 
@@ -147,6 +174,8 @@ public class Algorithm {
                     continue;
                 }
             }
+            log.info("Cloning: Team-" + i + " with id: " + this.currentGeneration.get(i).getId() + " & Team-" + (i + 2)
+                    + " with id: " + this.currentGeneration.get(i + 1).getId());
             crossedPopulation.add(this.currentGeneration.get(i));
             crossedPopulation.add(this.currentGeneration.get(i + 1));
         }
@@ -154,6 +183,9 @@ public class Algorithm {
         this.currentGeneration = crossedPopulation;
     }
 
+    /**
+     * This method does mutation operation on selected chromosomes and update the current generation.
+     */
     private void mutate() {
         List<Team> toRemove = new ArrayList<>(this.currentGeneration.size());
         List<List<Employee>> toAdd = new ArrayList<>(this.currentGeneration.size());
@@ -165,17 +197,27 @@ public class Algorithm {
                 if (random.nextDouble() <= this.mutationRate) {
                     isMutated = true;
                     removeIndexes.add(i);
+                    log.info("Mutating Employee-" + i + " with id " + employeeList.get(i).getId() + " in Team " + team
+                            .getId());
                 }
             }
 
-            for (int index : removeIndexes) {
-                String type = employeeList.get(index).getEmployeeType();
-                employeeList.remove(index);
-                employeeList.add(index, this.population.generateEmployee(type));
-            }
             if (isMutated) {
+                List<Employee> mutatedTeam = new ArrayList<>();
+                for (int i = 0; i < employeeList.size(); ++i) {
+                    if (!removeIndexes.contains(i)) {
+                        mutatedTeam.add(employeeList.get(i));
+                    }
+                }
+                for (int index : removeIndexes) {
+                    String type = employeeList.get(index).getEmployeeType();
+                    List<Integer> typeList = new ArrayList<>();
+                    typeList.addAll(mutatedTeam.stream().filter(employee -> type.equals(employee.getEmployeeType()))
+                            .map(Employee::getId).collect(Collectors.toList()));
+                    mutatedTeam.add(index, this.population.generateEmployee(type, typeList));
+                }
                 toRemove.add(team);
-                toAdd.add(employeeList);
+                toAdd.add(mutatedTeam);
             }
         }
 
@@ -187,16 +229,20 @@ public class Algorithm {
                 .collect(Collectors.toList()));
     }
 
+    /**
+     * This method selects the best candidates from the immediate generations to continue to send to the next generation
+     *
+     * @param selectionSize number of teams to select.
+     */
     private void selectFittest(int selectionSize) {
+        log.info("Selecting " + selectionSize + " fittest teams");
         List<Team> combinedGen = Stream.concat(this.generation.stream(), this.currentGeneration.stream())
                 .collect(Collectors.toList());
         Collections.sort(combinedGen, Team::compareTo);
         this.generation.clear();
 
         for (int i = combinedGen.size() - 1; i >= combinedGen.size() - selectionSize; --i) {
-            if(combinedGen.get(i).getFitness() > 0) {
-                this.generation.add(combinedGen.get(i));
-            }
+            this.generation.add(combinedGen.get(i));
         }
     }
 }

@@ -18,7 +18,7 @@ headerMapping:
 excluded:
 
 # Application related configurations
-mutationRate: 0.5
+mutationRate: 0.05
 crossoverRate: 0.6
 generations: 1000
 initialPopulationSize: 10

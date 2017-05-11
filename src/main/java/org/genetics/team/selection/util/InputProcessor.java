@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class contains methods related to processing of the input file.
+ */
 public class InputProcessor {
     private static Logger log = Logger.getLogger(InputProcessor.class);
     private static InputProcessor inputProcessor;
@@ -42,6 +45,12 @@ public class InputProcessor {
         this.configuration = configuration;
     }
 
+    /**
+     * Initializes input processor
+     *
+     * @param configuration {@link Configuration} object.
+     * @return {@link InputProcessor}
+     */
     public static InputProcessor getInputProcessor(Configuration configuration) {
         Map<String, String> headerMap = configuration.getHeaderMapping();
         Integer attributeCount = configuration.getAttributeCount();
@@ -64,7 +73,7 @@ public class InputProcessor {
      *
      * @return header of the input file
      */
-    public List<String> getHeader() {
+    private List<String> getHeader() {
         return new ArrayList<>(Arrays.asList(this.INPUT_HEADER));
     }
 
@@ -82,6 +91,7 @@ public class InputProcessor {
     }
 
     /**
+     * Processes given CSV file and generates Employee objects and create the population.
      *
      * @param path path of the input CSV file
      * @return Map of {@link Employee}
@@ -119,6 +129,7 @@ public class InputProcessor {
                 employees.put(employee.getEmployeeType(), temp);
             }
         }
+        log.info("Generated " + csvRecords.size() + " employees.");
         return employees;
     }
 }
